@@ -1,6 +1,8 @@
 using AssetManagementDemo.Web.Extensions;
 using AssetManagementDemo.Web.Middleware;
 using AssetManagementDemo.Web.Security;   //  Add
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,18 @@ builder.Services
 //  Register Authorization
 builder.Services.AddAuthorization();
 
+//  Register Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+	options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+	options.AddFixedWindowLimiter("ApiPolicy", policyOptions =>
+	{
+		policyOptions.PermitLimit = 60;
+		policyOptions.Window = TimeSpan.FromMinutes(1);
+		policyOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+		policyOptions.QueueLimit = 0;
+	});
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -37,6 +51,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//  Rate Limiter Middleware
+app.UseRateLimiter();
 
 //  Authentication Middleware
 app.UseAuthentication();

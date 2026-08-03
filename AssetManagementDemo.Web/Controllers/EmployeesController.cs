@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AssetManagementDemo.Web.Controllers
 {
-	[Authorize]
 	public class EmployeesController : Controller
     {
         private readonly IEmployeeService _employeeService;

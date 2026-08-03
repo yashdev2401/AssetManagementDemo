@@ -22,7 +22,8 @@ namespace AssetManagementDemo.McpServer.Bootstrapper
                 client.BaseAddress = new Uri(baseUrl.EndsWith("/") ? baseUrl : $"{baseUrl}/");
                 client.Timeout = TimeSpan.FromSeconds(mvcOptions.TimeoutSeconds > 0 ? mvcOptions.TimeoutSeconds : 30);
                 client.DefaultRequestHeaders.Add("User-Agent", "AssetManagementDemo.McpServer/1.0");
-            });
+				client.DefaultRequestHeaders.Add("X-Api-Key",configuration["ApiSecurity:ApiKey"]);
+			});
 
             // Register Tool Providers
             services.AddSingleton<IMcpTool, HealthTools>();

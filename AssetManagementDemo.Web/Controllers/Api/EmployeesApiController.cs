@@ -1,14 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AssetManagementDemo.Web.DTOs;
 using AssetManagementDemo.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AssetManagementDemo.Web.Controllers.Api
 {
-    [ApiController]
+	[Authorize]
+	[EnableRateLimiting("ApiPolicy")]
+	[ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class EmployeesApiController : ControllerBase
