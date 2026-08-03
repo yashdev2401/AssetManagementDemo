@@ -1,0 +1,126 @@
+@model AssetManagementDemo.Web.Models.Asset
+@{
+    ViewData["Title"] = "Asset Details";
+    var assignments = ViewBag.Assignments as IEnumerable<AssetManagementDemo.Web.Models.AssetAssignment> ?? new List<AssetManagementDemo.Web.Models.AssetAssignment>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Asset Specifications</h3>
+        <p class="text-muted mb-0">Detailed view for @Model.AssetName (@Model.AssetCode)</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (Model.Status == "Available")
+        {
+            <a asp-controller="Assignments" asp-action="Assign" asp-route-assetId="@Model.AssetId" class="btn btn-success">
+                <i class="bi bi-person-plus me-1"></i> Assign Asset
+            </a>
+        }
+        <a asp-action="Edit" asp-route-id="@Model.AssetId" class="btn btn-outline-primary">
+            <i class="bi bi-pencil me-1"></i> Edit Asset
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Specifications Card -->
+    <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="bg-info bg-opacity-10 text-info rounded-3 p-3 fs-2 fw-bold text-center" style="width:64px; height:64px; line-height:36px;">
+                    <i class="bi bi-laptop"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">@Model.AssetName</h4>
+                    <span class="badge bg-light text-dark border me-2">@(Model.Category ?? "Hardware")</span>
+                    <span class="badge bg-primary-subtle text-primary">@Model.Status</span>
+                </div>
+            </div>
+
+            <table class="table table-sm table-borderless">
+                <tr>
+                    <td class="text-muted fw-semibold" style="width: 140px;">Asset Code:</td>
+                    <td class="fw-bold text-primary">@Model.AssetCode</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-semibold">Brand / Model:</td>
+                    <td>@(Model.Brand) @(Model.Model)</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-semibold">Serial Number:</td>
+                    <td><code>@(Model.SerialNumber ?? "-")</code></td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-semibold">Purchase Price:</td>
+                    <td class="fw-bold text-success">@(Model.PurchasePrice.HasValue ? Model.PurchasePrice.Value.ToString("C2") : "-")</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-semibold">Purchase Date:</td>
+                    <td>@(Model.PurchaseDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                </tr>
+                <tr>
+                    <td class="text-muted fw-semibold">Warranty Expiry:</td>
+                    <td>@(Model.WarrantyExpiry?.ToString("yyyy-MM-dd") ?? "-")</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Assignment Audit Trail -->
+    <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-3">Assignment Audit Trail</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Assigned To</th>
+                            <th>Assigned Date</th>
+                            <th>Return Date</th>
+                            <th>Remarks</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!assignments.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted small">
+                                    No assignment records found for this asset.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in assignments)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">@item.Employee?.EmployeeName</div>
+                                        <small class="text-muted">Code: @item.Employee?.EmployeeCode</small>
+                                    </td>
+                                    <td>@item.AssignedDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@(item.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                    <td><small class="text-muted">@(item.Remarks ?? "-")</small></td>
+                                    <td>
+                                        @if (item.IsActive == true)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Returned</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

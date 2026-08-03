@@ -1,0 +1,194 @@
+@model AssetManagementDemo.Web.ViewModels.PagedResult<AssetManagementDemo.Web.Models.AssetAssignment>
+@{
+    ViewData["Title"] = "Asset Assignments";
+    var currentSearch = ViewData["CurrentSearch"] as string;
+    var currentIsActive = ViewData["CurrentIsActive"] as bool?;
+    var currentAssignedDate = ViewData["CurrentAssignedDate"] as string;
+    var currentSortBy = ViewData["CurrentSortBy"] as string;
+    var currentSortDescending = ViewData["CurrentSortDescending"] is bool b && b;
+    var currentPageSize = ViewData["CurrentPageSize"] is int ps ? ps : 10;
+
+    string GetSortUrl(string field)
+    {
+        bool newDesc = (currentSortBy == field) ? !currentSortDescending : false;
+        return Url.Action("Index", new { 
+            searchTerm = currentSearch, 
+            isActive = currentIsActive, 
+            assignedDate = currentAssignedDate,
+            sortBy = field, 
+            sortDescending = newDesc, 
+            pageSize = currentPageSize, 
+            pageNumber = 1 
+        }) ?? "#";
+    }
+
+    string GetSortIcon(string field)
+    {
+        if (currentSortBy != field) return "<i class=\"bi bi-arrow-down-up text-muted ms-1 fs-7\"></i>";
+        return currentSortDescending ? "<i class=\"bi bi-sort-down ms-1 text-primary\"></i>" : "<i class=\"bi bi-sort-up ms-1 text-primary\"></i>";
+    }
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">Asset Assignments & Return Log</h2>
+        <p class="text-muted mb-0">Track equipment allocations and return histories across employees</p>
+    </div>
+    <div>
+        <a asp-action="Assign" class="btn btn-primary-custom">
+            <i class="bi bi-plus-circle me-1"></i> Assign Asset
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-3">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <input type="hidden" name="sortBy" value="@currentSortBy" />
+        <input type="hidden" name="sortDescending" value="@(currentSortDescending ? "true" : "false")" />
+
+        <div class="col-12 col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="searchTerm" value="@currentSearch" class="form-control bg-light border-start-0 ps-0" placeholder="Search Employee, Asset, Remarks..." />
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <select name="isActive" class="form-select bg-light">
+                <option value="">-- All Assignments --</option>
+                <option value="true" selected="@(currentIsActive == true)">Active (Currently Assigned)</option>
+                <option value="false" selected="@(currentIsActive == false)">Completed (Returned)</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <input type="date" name="assignedDate" value="@currentAssignedDate" class="form-control bg-light" placeholder="Assigned Date" title="Filter by Assigned Date" />
+        </div>
+        <div class="col-12 col-sm-6 col-md-1">
+            <select name="pageSize" class="form-select bg-light" onchange="this.form.submit()">
+                <option value="10" selected="@(currentPageSize == 10)">10</option>
+                <option value="20" selected="@(currentPageSize == 20)">20</option>
+                <option value="50" selected="@(currentPageSize == 50)">50</option>
+                <option value="100" selected="@(currentPageSize == 100)">100</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-filter me-1"></i> Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Assignments Table -->
+<div class="card custom-table-card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>
+                        <a href="@GetSortUrl("EmployeeName")" class="text-dark text-decoration-none fw-bold">
+                            Employee @Html.Raw(GetSortIcon("EmployeeName"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("AssetName")" class="text-dark text-decoration-none fw-bold">
+                            Asset Details @Html.Raw(GetSortIcon("AssetName"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("AssignedDate")" class="text-dark text-decoration-none fw-bold">
+                            Assigned Date @Html.Raw(GetSortIcon("AssignedDate"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("ReturnDate")" class="text-dark text-decoration-none fw-bold">
+                            Return Date @Html.Raw(GetSortIcon("ReturnDate"))
+                        </a>
+                    </th>
+                    <th>Remarks</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 d-block mb-2 text-secondary"></i>
+                            No assignment logs found matching criteria.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold text-muted">#@item.AssignmentId</td>
+                            <td>
+                                <div class="fw-bold">@item.Employee?.EmployeeName</div>
+                                <small class="text-muted">Code: @item.Employee?.EmployeeCode | Dept: @item.Employee?.Department</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-primary">@item.Asset?.AssetName</div>
+                                <small class="text-muted">Code: @item.Asset?.AssetCode | Category: @item.Asset?.Category</small>
+                            </td>
+                            <td>@item.AssignedDate.ToString("yyyy-MM-dd")</td>
+                            <td>@(item.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                            <td><small class="text-muted">@(item.Remarks ?? "-")</small></td>
+                            <td>
+                                @if (item.IsActive == true)
+                                {
+                                    <span class="badge bg-success-subtle text-success badge-pill-custom">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary badge-pill-custom">Returned</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (item.IsActive == true)
+                                {
+                                    <a asp-action="Return" asp-route-id="@item.AssignmentId" class="btn btn-sm btn-outline-warning text-dark fw-semibold" title="Return Asset">
+                                        <i class="bi bi-box-arrow-in-left me-1"></i> Process Return
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small"><i class="bi bi-check-all"></i> Closed</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    @if (Model.TotalItems > 0)
+    {
+        <div class="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalItems)) of @Model.TotalItems entries
+            </span>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-isActive="@currentIsActive" asp-route-assignedDate="@currentAssignedDate" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-isActive="@currentIsActive" asp-route-assignedDate="@currentAssignedDate" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-isActive="@currentIsActive" asp-route-assignedDate="@currentAssignedDate" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

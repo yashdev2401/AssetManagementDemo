@@ -1,0 +1,59 @@
+@model AssetManagementDemo.Web.ViewModels.ReturnAssetViewModel
+@{
+    ViewData["Title"] = "Return Asset";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Process Asset Return</h3>
+                <p class="text-muted mb-0">Record return date and equipment status</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <div class="bg-light p-3 rounded-3 mb-4">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Employee</small>
+                        <strong class="text-dark">@Model.EmployeeName</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Asset</small>
+                        <strong class="text-primary">@Model.AssetCode - @Model.AssetName</strong>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <small class="text-muted d-block">Assigned On</small>
+                        <span>@Model.AssignedDate.ToString("yyyy-MM-dd")</span>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Return" method="post">
+                <input type="hidden" asp-for="AssignmentId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="ReturnDate" class="form-label fw-semibold"></label>
+                    <input asp-for="ReturnDate" type="date" class="form-control" />
+                    <span asp-validation-for="ReturnDate" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Remarks" class="form-label fw-semibold">Return Condition / Notes</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="e.g. Returned in good working condition, original accessories included..."></textarea>
+                    <span asp-validation-for="Remarks" class="text-danger small"></span>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                    <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold px-4"><i class="bi bi-box-arrow-in-left me-1"></i> Confirm Return</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

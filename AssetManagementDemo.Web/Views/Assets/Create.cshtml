@@ -1,0 +1,104 @@
+@model AssetManagementDemo.Web.ViewModels.AssetCreateViewModel
+@{
+    ViewData["Title"] = "Create Asset";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Add New Asset</h3>
+                <p class="text-muted mb-0">Register hardware or equipment item into inventory</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="AssetCode" class="form-label fw-semibold"></label>
+                        <input asp-for="AssetCode" class="form-control" placeholder="e.g. AST006" />
+                        <span asp-validation-for="AssetCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="AssetName" class="form-label fw-semibold"></label>
+                        <input asp-for="AssetName" class="form-control" placeholder="e.g. Macbook Pro 16 inch" />
+                        <span asp-validation-for="AssetName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="Category" class="form-label fw-semibold"></label>
+                        <select asp-for="Category" class="form-select">
+                            <option value="">-- Select Category --</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Monitor">Monitor</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Peripheral">Peripheral</option>
+                            <option value="Server">Server</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="Brand" class="form-label fw-semibold"></label>
+                        <input asp-for="Brand" class="form-control" placeholder="e.g. Apple, Dell, HP, Lenovo" />
+                        <span asp-validation-for="Brand" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="Model" class="form-label fw-semibold"></label>
+                        <input asp-for="Model" class="form-control" placeholder="e.g. Latitude 5440 / M3 Max" />
+                        <span asp-validation-for="Model" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="SerialNumber" class="form-label fw-semibold"></label>
+                        <input asp-for="SerialNumber" class="form-control" placeholder="Serial or Tag Number" />
+                        <span asp-validation-for="SerialNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="PurchaseDate" class="form-label fw-semibold"></label>
+                        <input asp-for="PurchaseDate" type="date" class="form-control" />
+                        <span asp-validation-for="PurchaseDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="WarrantyExpiry" class="form-label fw-semibold"></label>
+                        <input asp-for="WarrantyExpiry" type="date" class="form-control" />
+                        <span asp-validation-for="WarrantyExpiry" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="PurchasePrice" class="form-label fw-semibold"></label>
+                        <input asp-for="PurchasePrice" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                        <span asp-validation-for="PurchasePrice" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="Status" class="form-label fw-semibold"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Available">Available</option>
+                            <option value="Assigned">Assigned</option>
+                            <option value="Under Repair">Under Repair</option>
+                            <option value="Retired">Retired</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                    <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom px-4"><i class="bi bi-save me-1"></i> Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

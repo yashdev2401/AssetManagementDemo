@@ -1,0 +1,215 @@
+@model AssetManagementDemo.Web.ViewModels.PagedResult<AssetManagementDemo.Web.Models.Employee>
+@{
+    ViewData["Title"] = "Employees Directory";
+    var currentSearch = ViewData["CurrentSearch"] as string;
+    var currentDepartment = ViewData["CurrentDepartment"] as string;
+    var currentStatus = ViewData["CurrentStatus"] as string;
+    var currentLocation = ViewData["CurrentLocation"] as string;
+    var currentSortBy = ViewData["CurrentSortBy"] as string;
+    var currentSortDescending = ViewData["CurrentSortDescending"] is bool b && b;
+    var currentPageSize = ViewData["CurrentPageSize"] is int ps ? ps : 10;
+
+    string GetSortUrl(string field)
+    {
+        bool newDesc = (currentSortBy == field) ? !currentSortDescending : false;
+        return Url.Action("Index", new { 
+            searchTerm = currentSearch, 
+            department = currentDepartment, 
+            status = currentStatus, 
+            location = currentLocation,
+            sortBy = field, 
+            sortDescending = newDesc, 
+            pageSize = currentPageSize, 
+            pageNumber = 1 
+        }) ?? "#";
+    }
+
+    string GetSortIcon(string field)
+    {
+        if (currentSortBy != field) return "<i class=\"bi bi-arrow-down-up text-muted ms-1 fs-7\"></i>";
+        return currentSortDescending ? "<i class=\"bi bi-sort-down ms-1 text-primary\"></i>" : "<i class=\"bi bi-sort-up ms-1 text-primary\"></i>";
+    }
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">Employee Directory</h2>
+        <p class="text-muted mb-0">Manage employee records, designations, and contact info</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary-custom">
+            <i class="bi bi-person-plus-fill me-1"></i> Add Employee
+        </a>
+    </div>
+</div>
+
+<!-- Filter & Search Bar -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-3">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <input type="hidden" name="sortBy" value="@currentSortBy" />
+        <input type="hidden" name="sortDescending" value="@(currentSortDescending ? "true" : "false")" />
+
+        <div class="col-12 col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="searchTerm" value="@currentSearch" class="form-control bg-light border-start-0 ps-0" placeholder="Search Code, Name, Dept, Email..." />
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="department" class="form-select bg-light">
+                <option value="">-- Department --</option>
+                <option value="IT" selected="@(currentDepartment == "IT")">IT</option>
+                <option value="HR" selected="@(currentDepartment == "HR")">HR</option>
+                <option value="Finance" selected="@(currentDepartment == "Finance")">Finance</option>
+                <option value="Operations" selected="@(currentDepartment == "Operations")">Operations</option>
+                <option value="Sales" selected="@(currentDepartment == "Sales")">Sales</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="location" class="form-select bg-light">
+                <option value="">-- Location --</option>
+                <option value="New York" selected="@(currentLocation == "New York")">New York</option>
+                <option value="London" selected="@(currentLocation == "London")">London</option>
+                <option value="Tokyo" selected="@(currentLocation == "Tokyo")">Tokyo</option>
+                <option value="Remote" selected="@(currentLocation == "Remote")">Remote</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="status" class="form-select bg-light">
+                <option value="">-- Status --</option>
+                <option value="Active" selected="@(currentStatus == "Active")">Active</option>
+                <option value="Inactive" selected="@(currentStatus == "Inactive")">Inactive</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-1">
+            <select name="pageSize" class="form-select bg-light" onchange="this.form.submit()">
+                <option value="10" selected="@(currentPageSize == 10)">10</option>
+                <option value="20" selected="@(currentPageSize == 20)">20</option>
+                <option value="50" selected="@(currentPageSize == 50)">50</option>
+                <option value="100" selected="@(currentPageSize == 100)">100</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-filter me-1"></i> Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Employee Table -->
+<div class="card custom-table-card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="@GetSortUrl("EmployeeCode")" class="text-dark text-decoration-none fw-bold">
+                            Emp Code @Html.Raw(GetSortIcon("EmployeeCode"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("EmployeeName")" class="text-dark text-decoration-none fw-bold">
+                            Full Name @Html.Raw(GetSortIcon("EmployeeName"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Department")" class="text-dark text-decoration-none fw-bold">
+                            Department @Html.Raw(GetSortIcon("Department"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Designation")" class="text-dark text-decoration-none fw-bold">
+                            Designation @Html.Raw(GetSortIcon("Designation"))
+                        </a>
+                    </th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th>
+                        <a href="@GetSortUrl("Status")" class="text-dark text-decoration-none fw-bold">
+                            Status @Html.Raw(GetSortIcon("Status"))
+                        </a>
+                    </th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-2 text-secondary"></i>
+                            No employee records found matching criteria.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var emp in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@emp.EmployeeCode</td>
+                            <td class="fw-semibold">
+                                <a asp-action="Details" asp-route-id="@emp.EmployeeId" class="text-dark text-decoration-none">
+                                    @emp.EmployeeName
+                                </a>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@emp.Department</span></td>
+                            <td class="text-muted">@(emp.Designation ?? "-")</td>
+                            <td>@(emp.Email ?? "-")</td>
+                            <td>@(emp.Location ?? "-")</td>
+                            <td>
+                                @if (emp.Status == "Active")
+                                {
+                                    <span class="badge bg-success-subtle text-success badge-pill-custom">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary badge-pill-custom">Inactive</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@emp.EmployeeId" class="btn btn-outline-info" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@emp.EmployeeId" class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@emp.EmployeeId" class="btn btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    @if (Model.TotalItems > 0)
+    {
+        <div class="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalItems)) of @Model.TotalItems entries
+            </span>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-department="@currentDepartment" asp-route-location="@currentLocation" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-department="@currentDepartment" asp-route-location="@currentLocation" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-department="@currentDepartment" asp-route-location="@currentLocation" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

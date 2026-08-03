@@ -1,0 +1,6 @@
+@AssetManagementDemo.McpServer_HostAddress = http://localhost:5084
+
+GET {{AssetManagementDemo.McpServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

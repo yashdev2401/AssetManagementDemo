@@ -1,0 +1,73 @@
+@model AssetManagementDemo.Web.ViewModels.AssignAssetViewModel
+@{
+    ViewData["Title"] = "Assign Asset";
+    var employees = ViewBag.Employees as IEnumerable<AssetManagementDemo.Web.Models.Employee> ?? new List<AssetManagementDemo.Web.Models.Employee>();
+    var availableAssets = ViewBag.AvailableAssets as IEnumerable<AssetManagementDemo.Web.Models.Asset> ?? new List<AssetManagementDemo.Web.Models.Asset>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Assign Asset to Employee</h3>
+                <p class="text-muted mb-0">Select an active employee and available hardware asset</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <form asp-action="Assign" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <!-- Employee Dropdown -->
+                    <div class="col-12">
+                        <label asp-for="EmployeeId" class="form-label fw-semibold">Select Employee</label>
+                        <select asp-for="EmployeeId" class="form-select">
+                            <option value="">-- Choose Employee --</option>
+                            @foreach (var emp in employees)
+                            {
+                                <option value="@emp.EmployeeId">@emp.EmployeeName (@emp.EmployeeCode) - @emp.Department</option>
+                            }
+                        </select>
+                        <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Available Asset Dropdown -->
+                    <div class="col-12">
+                        <label asp-for="AssetId" class="form-label fw-semibold">Select Available Asset</label>
+                        <select asp-for="AssetId" class="form-select">
+                            <option value="">-- Choose Asset --</option>
+                            @foreach (var asset in availableAssets)
+                            {
+                                <option value="@asset.AssetId">@asset.AssetName (@asset.AssetCode) - @asset.Category [@asset.Brand @asset.Model]</option>
+                            }
+                        </select>
+                        <span asp-validation-for="AssetId" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Assigned Date -->
+                    <div class="col-12 col-sm-6">
+                        <label asp-for="AssignedDate" class="form-label fw-semibold"></label>
+                        <input asp-for="AssignedDate" type="date" class="form-control" />
+                        <span asp-validation-for="AssignedDate" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="col-12">
+                        <label asp-for="Remarks" class="form-label fw-semibold">Assignment Remarks / Condition</label>
+                        <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="e.g. Primary Workstation, assigned with charger & bag..."></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                    <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary-custom px-4"><i class="bi bi-check-circle me-1"></i> Confirm Assignment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

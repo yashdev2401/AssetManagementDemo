@@ -1,0 +1,35 @@
+@model AssetManagementDemo.Web.Models.Employee
+@{
+    ViewData["Title"] = "Delete Employee";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-danger shadow-sm rounded-4 p-4 bg-white">
+            <div class="text-center mb-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
+                <h4 class="fw-bold mt-2 text-danger">Confirm Deletion</h4>
+                <p class="text-muted">Are you sure you want to delete this employee profile?</p>
+            </div>
+
+            <div class="bg-light p-3 rounded-3 mb-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">Employee Code:</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.EmployeeCode</dd>
+
+                    <dt class="col-sm-4 text-muted">Name:</dt>
+                    <dd class="col-sm-8">@Model.EmployeeName</dd>
+
+                    <dt class="col-sm-4 text-muted">Department:</dt>
+                    <dd class="col-sm-8">@Model.Department</dd>
+                </dl>
+            </div>
+
+            <form asp-action="Delete" method="post" class="d-flex justify-content-end gap-2">
+                <input type="hidden" asp-for="EmployeeId" />
+                <a asp-action="Index" class="btn btn-light border px-4">Cancel</a>
+                <button type="submit" class="btn btn-danger px-4"><i class="bi bi-trash me-1"></i> Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>

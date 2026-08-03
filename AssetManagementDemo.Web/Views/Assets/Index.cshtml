@@ -1,0 +1,235 @@
+@model AssetManagementDemo.Web.ViewModels.PagedResult<AssetManagementDemo.Web.Models.Asset>
+@{
+    ViewData["Title"] = "Asset Inventory";
+    var currentSearch = ViewData["CurrentSearch"] as string;
+    var currentCategory = ViewData["CurrentCategory"] as string;
+    var currentBrand = ViewData["CurrentBrand"] as string;
+    var currentStatus = ViewData["CurrentStatus"] as string;
+    var currentSortBy = ViewData["CurrentSortBy"] as string;
+    var currentSortDescending = ViewData["CurrentSortDescending"] is bool b && b;
+    var currentPageSize = ViewData["CurrentPageSize"] is int ps ? ps : 10;
+
+    string GetSortUrl(string field)
+    {
+        bool newDesc = (currentSortBy == field) ? !currentSortDescending : false;
+        return Url.Action("Index", new { 
+            searchTerm = currentSearch, 
+            category = currentCategory, 
+            brand = currentBrand,
+            status = currentStatus, 
+            sortBy = field, 
+            sortDescending = newDesc, 
+            pageSize = currentPageSize, 
+            pageNumber = 1 
+        }) ?? "#";
+    }
+
+    string GetSortIcon(string field)
+    {
+        if (currentSortBy != field) return "<i class=\"bi bi-arrow-down-up text-muted ms-1 fs-7\"></i>";
+        return currentSortDescending ? "<i class=\"bi bi-sort-down ms-1 text-primary\"></i>" : "<i class=\"bi bi-sort-up ms-1 text-primary\"></i>";
+    }
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+        <h2 class="fw-bold mb-1">Asset Inventory</h2>
+        <p class="text-muted mb-0">Track hardware, laptops, peripherals, and warranty status</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary-custom">
+            <i class="bi bi-laptop me-1"></i> Add New Asset
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-3">
+    <form method="get" asp-action="Index" class="row g-2 align-items-center">
+        <input type="hidden" name="sortBy" value="@currentSortBy" />
+        <input type="hidden" name="sortDescending" value="@(currentSortDescending ? "true" : "false")" />
+
+        <div class="col-12 col-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="searchTerm" value="@currentSearch" class="form-control bg-light border-start-0 ps-0" placeholder="Search Code, Name, Brand, Serial..." />
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="category" class="form-select bg-light">
+                <option value="">-- Category --</option>
+                <option value="Laptop" selected="@(currentCategory == "Laptop")">Laptop</option>
+                <option value="Desktop" selected="@(currentCategory == "Desktop")">Desktop</option>
+                <option value="Monitor" selected="@(currentCategory == "Monitor")">Monitor</option>
+                <option value="Mobile" selected="@(currentCategory == "Mobile")">Mobile</option>
+                <option value="Peripheral" selected="@(currentCategory == "Peripheral")">Peripheral</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="brand" class="form-select bg-light">
+                <option value="">-- Brand --</option>
+                <option value="Dell" selected="@(currentBrand == "Dell")">Dell</option>
+                <option value="HP" selected="@(currentBrand == "HP")">HP</option>
+                <option value="Lenovo" selected="@(currentBrand == "Lenovo")">Lenovo</option>
+                <option value="Apple" selected="@(currentBrand == "Apple")">Apple</option>
+                <option value="Samsung" selected="@(currentBrand == "Samsung")">Samsung</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+            <select name="status" class="form-select bg-light">
+                <option value="">-- Status --</option>
+                <option value="Available" selected="@(currentStatus == "Available")">Available</option>
+                <option value="Assigned" selected="@(currentStatus == "Assigned")">Assigned</option>
+                <option value="Under Repair" selected="@(currentStatus == "Under Repair")">Under Repair</option>
+                <option value="Retired" selected="@(currentStatus == "Retired")">Retired</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-6 col-md-1">
+            <select name="pageSize" class="form-select bg-light" onchange="this.form.submit()">
+                <option value="10" selected="@(currentPageSize == 10)">10</option>
+                <option value="20" selected="@(currentPageSize == 20)">20</option>
+                <option value="50" selected="@(currentPageSize == 50)">50</option>
+                <option value="100" selected="@(currentPageSize == 100)">100</option>
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-filter me-1"></i> Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+        </div>
+    </form>
+</div>
+
+<!-- Assets Table -->
+<div class="card custom-table-card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="@GetSortUrl("AssetCode")" class="text-dark text-decoration-none fw-bold">
+                            Asset Code @Html.Raw(GetSortIcon("AssetCode"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("AssetName")" class="text-dark text-decoration-none fw-bold">
+                            Asset Name @Html.Raw(GetSortIcon("AssetName"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Category")" class="text-dark text-decoration-none fw-bold">
+                            Category @Html.Raw(GetSortIcon("Category"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Brand")" class="text-dark text-decoration-none fw-bold">
+                            Brand / Model @Html.Raw(GetSortIcon("Brand"))
+                        </a>
+                    </th>
+                    <th>Serial No.</th>
+                    <th>
+                        <a href="@GetSortUrl("PurchasePrice")" class="text-dark text-decoration-none fw-bold">
+                            Price ($) @Html.Raw(GetSortIcon("PurchasePrice"))
+                        </a>
+                    </th>
+                    <th>
+                        <a href="@GetSortUrl("Status")" class="text-dark text-decoration-none fw-bold">
+                            Status @Html.Raw(GetSortIcon("Status"))
+                        </a>
+                    </th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-laptop border rounded-circle p-3 fs-1 d-block mb-2 text-secondary"></i>
+                            No assets found matching criteria.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var asset in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@asset.AssetCode</td>
+                            <td class="fw-semibold">
+                                <a asp-action="Details" asp-route-id="@asset.AssetId" class="text-dark text-decoration-none">
+                                    @asset.AssetName
+                                </a>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@(asset.Category ?? "General")</span></td>
+                            <td class="text-muted">@(asset.Brand) @(asset.Model)</td>
+                            <td><code class="text-dark">@(asset.SerialNumber ?? "-")</code></td>
+                            <td>@(asset.PurchasePrice.HasValue ? asset.PurchasePrice.Value.ToString("C2") : "-")</td>
+                            <td>
+                                @switch (asset.Status)
+                                {
+                                    case "Available":
+                                        <span class="badge bg-success-subtle text-success badge-pill-custom">Available</span>
+                                        break;
+                                    case "Assigned":
+                                        <span class="badge bg-primary-subtle text-primary badge-pill-custom">Assigned</span>
+                                        break;
+                                    case "Under Repair":
+                                        <span class="badge bg-danger-subtle text-danger badge-pill-custom">Under Repair</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary-subtle text-secondary badge-pill-custom">@asset.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    @if (asset.Status == "Available")
+                                    {
+                                        <a asp-controller="Assignments" asp-action="Assign" asp-route-assetId="@asset.AssetId" class="btn btn-outline-success" title="Assign to Employee">
+                                            <i class="bi bi-person-plus"></i>
+                                        </a>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@asset.AssetId" class="btn btn-outline-info" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@asset.AssetId" class="btn btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@asset.AssetId" class="btn btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    @if (Model.TotalItems > 0)
+    {
+        <div class="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+                Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @(Math.Min(Model.PageNumber * Model.PageSize, Model.TotalItems)) of @Model.TotalItems entries
+            </span>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-category="@currentCategory" asp-route-brand="@currentBrand" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Previous</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@i" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-category="@currentCategory" asp-route-brand="@currentBrand" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@currentPageSize" asp-route-searchTerm="@currentSearch" asp-route-category="@currentCategory" asp-route-brand="@currentBrand" asp-route-status="@currentStatus" asp-route-sortBy="@currentSortBy" asp-route-sortDescending="@currentSortDescending">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
