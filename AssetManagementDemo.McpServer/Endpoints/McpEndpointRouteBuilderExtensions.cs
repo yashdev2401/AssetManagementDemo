@@ -16,13 +16,13 @@ namespace AssetManagementDemo.McpServer.Endpoints
         public static IEndpointRouteBuilder MapMcpEndpoints(this IEndpointRouteBuilder endpoints)
         {
             // MCP JSON-RPC 2.0 POST Endpoints
-            endpoints.MapPost("/mcp", HandleMcpPostRequestAsync);
-            endpoints.MapPost("/mcp/message", HandleMcpPostRequestAsync);
+            endpoints.MapPost("/mcp", HandleMcpPostRequestAsync).RequireRateLimiting("ApiPolicy");
+            endpoints.MapPost("/mcp/message", HandleMcpPostRequestAsync).RequireRateLimiting("ApiPolicy");
 
             // Browser Friendly GET Status Endpoints
-            endpoints.MapGet("/", HandleStatusGetRequestAsync);
-            endpoints.MapGet("/mcp", HandleStatusGetRequestAsync);
-            endpoints.MapGet("/mcp/message", HandleStatusGetRequestAsync);
+            endpoints.MapGet("/", HandleStatusGetRequestAsync).RequireRateLimiting("ApiPolicy");
+            endpoints.MapGet("/mcp", HandleStatusGetRequestAsync).RequireRateLimiting("ApiPolicy");
+            endpoints.MapGet("/mcp/message", HandleStatusGetRequestAsync).RequireRateLimiting("ApiPolicy");
 
             return endpoints;
         }
